@@ -4,6 +4,3 @@ Resources:
       Type: AWS::Lambda::Function
       Properties:
         Name: poc-hello-lambda
-        Alias: prod
-        CurrentVersion: "1"
-        TargetVersion: "1"
