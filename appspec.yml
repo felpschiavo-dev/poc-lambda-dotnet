@@ -1,0 +1,9 @@
+version: 0.0
+Resources:
+  - myLambdaFunction:
+      Type: AWS::Lambda::Function
+      Properties:
+        Name: HelloLambda
+        Alias: prod
+        CurrentVersion: "CURRENT"
+        TargetVersion: "NEW"
