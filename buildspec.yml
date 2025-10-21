@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      dotnet: 8
+    commands:
+      - echo Installing tools...
+      - dotnet tool install -g Amazon.Lambda.Tools || true
+      - export PATH="$PATH:$HOME/.dotnet/tools"
+  build:
+    commands:
+      - echo Restoring...
+      - cd HelloLambda
+      - dotnet restore
+      - echo Building...
+      - dotnet build -c Release
+      - echo Packaging...
+      - dotnet lambda package --configuration Release --framework net8.0 --output-package ../artifact/function.zip
+artifacts:
+  files:
+    - artifact/function.zip
