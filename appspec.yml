@@ -4,3 +4,6 @@ Resources:
       Type: AWS::Lambda::Function
       Properties:
         Name: poc-hello-lambda
+        Alias: prod          # nome do alias que você vai usar
+        CurrentVersion: 1    # versão atual publicada
+        TargetVersion: 1     # versão que o deploy vai aplicar
