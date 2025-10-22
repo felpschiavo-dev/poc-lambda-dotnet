@@ -7,10 +7,12 @@ phases:
     commands:
       - echo "Instalando dependências"
       - dotnet --version
+
   pre_build:
     commands:
       - echo "Preparando build"
       - dotnet restore
+
   build:
     commands:
       - echo "Compilando o projeto"
@@ -18,23 +20,15 @@ phases:
       - cd publish
       - zip -r ../function.zip .
       - cd ..
+
   post_build:
     commands:
       - echo "Atualizando Lambda e publicando nova versão"
-      - |
-        VERSION=$(aws lambda update-function-code \
-          --function-name poc-hello-lambda \
-          --zip-file fileb://function.zip \
-          --query 'Version' --output text)
+      - VERSION=$(aws lambda update-function-code --function-name poc-hello-lambda --zip-file fileb://function.zip --query 'Version' --output text)
       - echo "Nova versão publicada: $VERSION"
-      - |
-        aws lambda publish-version \
-          --function-name poc-hello-lambda
-      - |
-        aws lambda update-alias \
-          --function-name poc-hello-lambda \
-          --name prod \
-          --function-version $VERSION
+      - aws lambda publish-version --function-name poc-hello-lambda
+      - aws lambda update-alias --function-name poc-hello-lambda --name prod --function-version $VERSION
+
 artifacts:
   files:
     - function.zip
