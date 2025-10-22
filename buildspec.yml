@@ -5,21 +5,30 @@ phases:
     runtime-versions:
       dotnet: 8
     commands:
-      - echo Installing tools...
+      - echo "🚀 Instalando ferramentas..."
       - dotnet tool install -g Amazon.Lambda.Tools || true
       - export PATH="$PATH:$HOME/.dotnet/tools"
 
-  build:
+  pre_build:
     commands:
-      - echo Restoring...
+      - echo "🔄 Restaurando dependências..."
       - cd HelloLambda
       - dotnet restore
-      - echo Building...
-      - dotnet build -c Release
-      - echo Packaging...
-      - dotnet lambda package --configuration Release --framework net8.0 --output-package ../artifact/function.zip
+
+  build:
+    commands:
+      - echo "🏗️ Publicando aplicação..."
+      - dotnet publish -c Release -f net8.0 -o ./publish
+
+      - echo "📦 Criando pacote function.zip na raiz..."
+      - cd publish
+      - zip -r ../../../function.zip .
+
+  post_build:
+    commands:
+      - echo "✅ Build concluído com sucesso."
 
 artifacts:
   files:
-    - artifact/function.zip
+    - function.zip
     - appspec.yml
