@@ -5,21 +5,36 @@ phases:
     runtime-versions:
       dotnet: 8
     commands:
-      - echo Installing tools...
-      - dotnet tool install -g Amazon.Lambda.Tools || true
-      - export PATH="$PATH:$HOME/.dotnet/tools"
-
+      - echo "Instalando dependências"
+      - dotnet --version
+  pre_build:
+    commands:
+      - echo "Preparando build"
+      - dotnet restore
   build:
     commands:
-      - echo Restoring...
-      - cd HelloLambda
-      - dotnet restore
-      - echo Building...
-      - dotnet build -c Release
-      - echo Packaging...
-      - dotnet lambda package --configuration Release --framework net8.0 --output-package ../artifact/function.zip
-
+      - echo "Compilando o projeto"
+      - dotnet publish -c Release -o ./publish
+      - cd publish
+      - zip -r ../function.zip .
+      - cd ..
+  post_build:
+    commands:
+      - echo "Atualizando Lambda e publicando nova versão"
+      - |
+        VERSION=$(aws lambda update-function-code \
+          --function-name poc-hello-lambda \
+          --zip-file fileb://function.zip \
+          --query 'Version' --output text)
+      - echo "Nova versão publicada: $VERSION"
+      - |
+        aws lambda publish-version \
+          --function-name poc-hello-lambda
+      - |
+        aws lambda update-alias \
+          --function-name poc-hello-lambda \
+          --name prod \
+          --function-version $VERSION
 artifacts:
   files:
-    - artifact/function.zip
-    - appspec.yml
+    - function.zip
